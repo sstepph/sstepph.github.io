@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assessing Linguistic Features in Machine Translation Models from Syrian Arabic to English</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root { --blue:#2f6fb0; --blue-dark:#1d4f86; --blue-soft:#e8f1fb; --sky:#8fb4dc; --teal:#14a3a3; }
+  body { font-family:'Manrope',sans-serif; background:#f6f9fd; color:#1b2433; }
+  .ar { font-family:'Noto Naskh Arabic',serif; direction:rtl; unicode-bidi:isolate; }
+  .gradient-hero { background:linear-gradient(135deg,#1d4f86 0%,#2f6fb0 55%,#8fb4dc 100%); }
+  .card { background:#fff; border-radius:1rem; box-shadow:0 4px 18px rgba(29,79,134,.08); border:1px solid #e3ecf6; }
+  .section-title { font-weight:800; font-size:clamp(1.8rem,4vw,2.5rem); color:#14365c; }
+  .pill { display:inline-block; padding:.2rem .7rem; border-radius:999px; font-size:.75rem; font-weight:700; }
+  .tab-btn.active { background:var(--blue); color:#fff; }
+  .metric-btn.active { background:var(--blue-dark); color:#fff; }
+  .fade-in { opacity:0; transform:translateY(16px); transition:all .6s ease; }
+  .fade-in.visible { opacity:1; transform:none; }
+  table td, table th { padding:.6rem .8rem; }
+  .best { font-weight:800; color:var(--blue-dark); background:#e8f1fb; }
+  nav a:hover { color:var(--blue); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <span class="font-extrabold text-[#14365c]"><i class="fas fa-language mr-2 text-[#2f6fb0]"></i>Syrian Arabic → English MT</span>
+    <div class="hidden md:flex gap-6 text-sm font-semibold text-slate-600">
+      <a href="#focus">Focus</a><a href="#background">Background</a><a href="#data">Data</a>
+      <a href="#models">Models</a><a href="#method">Method</a><a href="#results">Results</a>
+      <a href="#cases">Case Studies</a><a href="#conclusion">Conclusion</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="gradient-hero text-white">
+  <div class="max-w-6xl mx-auto px-4 py-20 text-center">
+    <p class="uppercase tracking-widest text-sm text-blue-100 mb-4">Université de Lorraine – IDMC – M1 NLP</p>
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight mb-6">
+      Assessing Linguistic Features in Different<br class="hidden md:block"> Machine Translation Models<br>
+      <span class="text-blue-100">from Syrian Arabic to English</span>
+    </h1>
+    <p class="max-w-3xl mx-auto text-lg text-blue-50">
+      Fine-tuning five translation models on a low-resource Arabic dialect, then testing how they handle homonyms and proper nouns that carry a literal meaning.
+    </p>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-4xl mx-auto">
+      <div class="bg-white/15 rounded-xl p-4"><div class="text-3xl font-extrabold">5</div><div class="text-sm text-blue-100">MT models fine-tuned</div></div>
+      <div class="bg-white/15 rounded-xl p-4"><div class="text-3xl font-extrabold">~6,400</div><div class="text-sm text-blue-100">PADIC sentences</div></div>
+      <div class="bg-white/15 rounded-xl p-4"><div class="text-3xl font-extrabold">36.23%</div><div class="text-sm text-blue-100">Best BLEU (NLLB-200)</div></div>
+      <div class="bg-white/15 rounded-xl p-4"><div class="text-3xl font-extrabold">3.294 kg</div><div class="text-sm text-blue-100">Total CO₂ footprint</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- FOCUS + TEAM -->
+<section id="focus" class="max-w-6xl mx-auto px-4 py-16">
+  <div class="card p-8 mb-10 fade-in">
+    <h2 class="section-title mb-4"><i class="fas fa-bullseye text-[#2f6fb0] mr-2"></i>Research Focus</h2>
+    <p class="text-lg leading-relaxed">
+      <strong>How well do fine-tuned machine translation models translate Syrian Arabic into English?</strong>
+      Most MT systems are built around Modern Standard Arabic (MSA), while everyday communication happens in dialects.
+      We fine-tune and compare five sequence-to-sequence models, then look closely at two hard cases:
+      <strong>dialect-specific homonyms</strong> and <strong>semantically loaded named entities</strong> (names and places that also have a literal meaning).
+      We also test whether adding an Arabic NER model to the pipeline helps.
+    </p>
+  </div>
+
+  <div class="fade-in">
+    <h3 class="text-2xl font-extrabold text-[#14365c] mb-6 text-center">Research Team</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="team"></div>
+    <div class="card p-6 mt-6">
+      <h4 class="font-bold text-[#14365c] mb-2"><i class="fas fa-heart text-[#14a3a3] mr-2"></i>Acknowledgements</h4>
+      <p class="text-slate-700">Special thanks to <strong>Maxime Amblard</strong> for his questions, which pushed the team to explore new ideas every work session, and to <strong>Amandine Decker</strong>, <strong>Vincent P. Martin</strong>, and <strong>François Buet</strong> for their presence and thought-provoking questions during work sessions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BACKGROUND -->
+<section id="background" class="bg-white py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="section-title text-center mb-3">Background</h2>
+    <p class="text-center text-slate-600 max-w-3xl mx-auto mb-10">
+      Arab countries live in a situation of <strong>diglossia</strong>: MSA is the "high" language of education and formal writing, while the local dialect is the "low" language of daily life. Some dialects differ so much from MSA that they are not mutually intelligible, and very little data exists for them.
+    </p>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-14">
+      <div class="card p-6 fade-in">
+        <h4 class="font-bold text-lg mb-2"><i class="fas fa-volume-high text-[#2f6fb0] mr-2"></i>Phonological variation</h4>
+        <p>Some vowels and consonants shift in spoken Levantine Arabic. For example, /θ/ (<span class="ar">ث</span>) tends to become /t/.</p>
+      </div>
+      <div class="card p-6 fade-in">
+        <h4 class="font-bold text-lg mb-2"><i class="fas fa-puzzle-piece text-[#2f6fb0] mr-2"></i>Morphological variation</h4>
+        <p>The future marker: <span class="ar">سـ</span> /sa/ or <span class="ar">سوف</span> /sawfa/ in MSA, but <span class="ar">حـ</span> /ħ/ or <span class="ar">رح</span> /raħ/ in Levantine dialects.</p>
+      </div>
+      <div class="card p-6 fade-in">
+        <h4 class="font-bold text-lg mb-2"><i class="fas fa-book text-[#2f6fb0] mr-2"></i>Lexical variation</h4>
+        <p>"Tomorrow" is <span class="ar">غداً</span> /ɣadan/ in MSA, but <span class="ar">بكرا</span> /bukra/ in Levantine dialects.</p>
+      </div>
+      <div class="card p-6 fade-in">
+        <h4 class="font-bold text-lg mb-2"><i class="fas fa-pen-nib text-[#2f6fb0] mr-2"></i>Orthographic variation</h4>
+        <p>MSA has a standard spelling. Dialects are not standardized, so spelling varies from writer to writer.</p>
+      </div>
+    </div>
+
+    <h3 class="text-2xl font-extrabold text-[#14365c] mb-6 text-center">Previous Work on Dialectal Arabic MT</h3>
+    <div class="relative border-l-4 border-[#8fb4dc] ml-4 md:ml-16 space-y-8">
+      <div class="pl-6 fade-in"><span class="pill bg-[#e8f1fb] text-[#1d4f86]">2006</span>
+        <h5 class="font-bold mt-1">Statistical segmentation (Riesa &amp; Yarowsky)</h5>
+        <p class="text-slate-600">Statistical segmentation outperformed rule-based approaches for Iraqi and Levantine Arabic.</p></div>
+      <div class="pl-6 fade-in"><span class="pill bg-[#e8f1fb] text-[#1d4f86]">2010</span>
+        <h5 class="font-bold mt-1">Pivot through MSA (Sawaf)</h5>
+        <p class="text-slate-600">A hybrid rule-based + statistical system normalized dialects into MSA before translation, with modest BLEU gains.</p></div>
+      <div class="pl-6 fade-in"><span class="pill bg-[#e8f1fb] text-[#1d4f86]">2011</span>
+        <h5 class="font-bold mt-1">Morphological mapping &amp; crowdsourcing</h5>
+        <p class="text-slate-600">Salloum &amp; Habash mapped dialectal morphemes to MSA to reduce out-of-vocabulary rates. Zaidan &amp; Callison-Burch used Amazon Mechanical Turk to build cost-effective parallel corpora.</p></div>
+      <div class="pl-6 fade-in"><span class="pill bg-[#e8f1fb] text-[#1d4f86]">2012</span>
+        <h5 class="font-bold mt-1">Direct dialect-to-English translation (Zbib et al.)</h5>
+        <p class="text-slate-600">A 1.5M-word Egyptian and Levantine corpus enabled a phrase-based hierarchical system that beat MSA-based systems by 6.3 to 7 BLEU points.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DATA -->
+<section id="data" class="max-w-6xl mx-auto px-4 py-16">
+  <h2 class="section-title text-center mb-10">Data</h2>
+  <div class="grid md:grid-cols-5 gap-6">
+    <div class="card p-6 md:col-span-2 fade-in">
+      <h4 class="font-bold text-lg mb-3"><i class="fas fa-database text-[#2f6fb0] mr-2"></i>PADIC</h4>
+      <p class="text-sm text-slate-500 mb-3">Parallel Arabic DIalectal Corpus (Meftouh et al., 2018)</p>
+      <ul class="space-y-2">
+        <li><i class="fas fa-check text-[#14a3a3] mr-2"></i>About 6,400 sentences</li>
+        <li><i class="fas fa-check text-[#14a3a3] mr-2"></i>6 Arabic dialects, including Syrian Arabic, aligned with MSA</li>
+        <li><i class="fas fa-check text-[#14a3a3] mr-2"></i>Syrian translation by a native Damascene speaker</li>
+        <li><i class="fas fa-check text-[#14a3a3] mr-2"></i>English side produced with GPT-4o-mini, using MSA as the pivot</li>
+      </ul>
+    </div>
+    <div class="card p-6 md:col-span-3 fade-in overflow-x-auto">
+      <h4 class="font-bold text-lg mb-3">Example (sentence #5)</h4>
+      <table class="w-full text-left border border-slate-200 rounded">
+        <tr class="border-b"><th class="bg-[#e8f1fb] w-40">English</th><td>I spent beautiful days that I will never forget for the rest of my life.</td></tr>
+        <tr class="border-b"><th class="bg-[#e8f1fb]">MSA</th><td class="ar text-lg">أمضيت أياما جميله لن انساها طوال عمري</td></tr>
+        <tr><th class="bg-[#e8f1fb]">Syrian Arabic</th><td class="ar text-lg">مضيت ايام حلوه بعمري ما بنساها</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3 class="text-xl font-extrabold text-[#14365c] mt-12 mb-6 text-center">Pre-processing Pipeline</h3>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="card p-5 text-center fade-in"><div class="text-[#2f6fb0] text-2xl mb-2"><i class="fas fa-broom"></i></div><h5 class="font-bold">1. Cleaning</h5><p class="text-sm text-slate-600 mt-1">Trim extra spaces, remove special and foreign characters, diacritics (Syrian side) and contractions (English side).</p></div>
+    <div class="card p-5 text-center fade-in"><div class="text-[#2f6fb0] text-2xl mb-2"><i class="fas fa-equals"></i></div><h5 class="font-bold">2. Normalization</h5><p class="text-sm text-slate-600 mt-1">Normalize the various forms of a letter in Syrian Arabic.</p></div>
+    <div class="card p-5 text-center fade-in"><div class="text-[#2f6fb0] text-2xl mb-2"><i class="fas fa-scissors"></i></div><h5 class="font-bold">3. Splitting</h5><p class="text-sm text-slate-600 mt-1">80% training, 10% validation, 10% testing.</p></div>
+    <div class="card p-5 text-center fade-in"><div class="text-[#2f6fb0] text-2xl mb-2"><i class="fas fa-cubes"></i></div><h5 class="font-bold">4. Tokenization</h5><p class="text-sm text-slate-600 mt-1">Each model's own tokenizer, mainly SentencePiece and Byte-Pair Encoding (BPE).</p></div>
+  </div>
+</section>
+
+<!-- MODELS -->
+<section id="models" class="bg-white py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="section-title text-center mb-10">Models</h2>
+    <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-4" id="models-grid"></div>
+    <p class="text-center text-slate-500 text-sm mt-6">Llama 3.1 8B was added later for the NER case studies only. It was <strong>not</strong> fine-tuned.</p>
+  </div>
+</section>
+
+<!-- METHOD -->
+<section id="method" class="max-w-6xl mx-auto px-4 py-16">
+  <h2 class="section-title text-center mb-10">Methodology</h2>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card p-6 fade-in">
+      <h4 class="font-bold text-lg mb-4"><i class="fas fa-sliders text-[#2f6fb0] mr-2"></i>Fine-tuning setup</h4>
+      <p class="text-slate-600 mb-4">Same strategy for every model, to test the hypothesis that fine-tuning on dialect data improves translation quality.</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-[#e8f1fb] rounded-lg p-3 text-center"><div class="text-xl font-extrabold text-[#1d4f86]">2e-5</div><div class="text-xs text-slate-600">Learning rate</div></div>
+        <div class="bg-[#e8f1fb] rounded-lg p-3 text-center"><div class="text-xl font-extrabold text-[#1d4f86]">8</div><div class="text-xs text-slate-600">Batch size (train &amp; eval)</div></div>
+        <div class="bg-[#e8f1fb] rounded-lg p-3 text-center"><div class="text-xl font-extrabold text-[#1d4f86]">5</div><div class="text-xs text-slate-600">Epochs</div></div>
+        <div class="bg-[#e8f1fb] rounded-lg p-3 text-center"><div class="text-xl font-extrabold text-[#1d4f86]">0.01</div><div class="text-xs text-slate-600">Weight decay</div></div>
+      </div>
+    </div>
+    <div class="card p-6 fade-in">
+      <h4 class="font-bold text-lg mb-4"><i class="fas fa-tags text-[#2f6fb0] mr-2"></i>ANER model (Sadallah et al., 2023)</h4>
+      <ul class="space-y-2 text-slate-700">
+        <li><i class="fas fa-angle-right text-[#14a3a3] mr-2"></i>Built on the AraBERT architecture</li>
+        <li><i class="fas fa-angle-right text-[#14a3a3] mr-2"></i>Trained on WikiFANE_Gold: Wikipedia articles annotated with 50 entity classes</li>
+        <li><i class="fas fa-angle-right text-[#14a3a3] mr-2"></i>Supports Arabic and Arabizi</li>
+        <li><i class="fas fa-angle-right text-[#14a3a3] mr-2"></i>Publicly available on Hugging Face</li>
+      </ul>
+      <p class="text-sm text-slate-500 mt-4">Arabic NER is hard: no capitalization, many dialects, and rich morphology.</p>
+    </div>
+  </div>
+
+  <h3 class="text-xl font-extrabold text-[#14365c] mt-12 mb-6 text-center">NER-Augmented Translation Pipeline</h3>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="card p-5 fade-in"><span class="pill bg-[#2f6fb0] text-white">1</span><h5 class="font-bold mt-2">Detect</h5><p class="text-sm text-slate-600">ANER finds named entities. Only those with confidence above 85% are kept.</p></div>
+    <div class="card p-5 fade-in"><span class="pill bg-[#2f6fb0] text-white">2</span><h5 class="font-bold mt-2">Replace</h5><p class="text-sm text-slate-600">Each entity is swapped for its tag (e.g. PERSON, LOCATION).</p></div>
+    <div class="card p-5 fade-in"><span class="pill bg-[#2f6fb0] text-white">3</span><h5 class="font-bold mt-2">Translate</h5><p class="text-sm text-slate-600">The tagged sentence is translated into English.</p></div>
+    <div class="card p-5 fade-in"><span class="pill bg-[#2f6fb0] text-white">4</span><h5 class="font-bold mt-2">Reinsert</h5><p class="text-sm text-slate-600">The original entities are put back in place of the tags.</p></div>
+  </div>
+
+  <div class="card p-6 mt-10 fade-in">
+    <h4 class="font-bold text-lg mb-3"><i class="fas fa-signature text-[#2f6fb0] mr-2"></i>Why proper nouns are tricky</h4>
+    <p class="text-slate-700 mb-4">Many Arabic names and places have a literal meaning. They should be transliterated, not translated.</p>
+    <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+      <div class="bg-[#e8f1fb] rounded-lg p-3"><div class="font-bold">First names</div><span class="ar">نور</span> Noor = light<br><span class="ar">سلام</span> Salam = peace</div>
+      <div class="bg-[#e8f1fb] rounded-lg p-3"><div class="font-bold">Surnames</div><span class="ar">خباز</span> Khabbaz = baker<br><span class="ar">طويل</span> Tawil = tall</div>
+      <div class="bg-[#e8f1fb] rounded-lg p-3"><div class="font-bold">Place-based surnames</div><span class="ar">حلبي</span> Halabi = from Aleppo<br><span class="ar">نخلة</span> Nakhle = palm tree</div>
+      <div class="bg-[#e8f1fb] rounded-lg p-3"><div class="font-bold">Toponyms</div><span class="ar">باب توما</span> Bab Touma = Gate of Thomas<br><span class="ar">راس العين</span> Ras al-Ayn = head of the eye</div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results" class="bg-white py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="section-title text-center mb-3">Results</h2>
+    <p class="text-center text-slate-600 mb-8">Automatic evaluation after fine-tuning. For every metric, higher is better.</p>
+
+    <div class="card p-6 mb-8">
+      <div class="flex flex-wrap gap-2 justify-center mb-4" id="metric-buttons"></div>
+      <div class="relative h-80"><canvas id="metricChart"></canvas></div>
+    </div>
+
+    <div class="card p-4 overflow-x-auto">
+      <table class="w-full text-sm text-center" id="results-table"></table>
+      <p class="text-xs text-slate-500 mt-3 text-left">Highlighted cells mark the highest score in each row.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-4 mt-8">
+      <div class="card p-5 fade-in"><h5 class="font-bold text-[#1d4f86]"><i class="fas fa-trophy mr-2"></i>NLLB-200 leads overall</h5><p class="text-sm text-slate-600 mt-1">Best BLEU (36.23%) and CHRF (55.95%).</p></div>
+      <div class="card p-5 fade-in"><h5 class="font-bold text-[#1d4f86]"><i class="fas fa-medal mr-2"></i>M2M-100 close behind</h5><p class="text-sm text-slate-600 mt-1">Strongest on ROUGE-1, ROUGE-L and ROUGE-LSUM, and best METEOR (0.599).</p></div>
+      <div class="card p-5 fade-in"><h5 class="font-bold text-[#1d4f86]"><i class="fas fa-triangle-exclamation mr-2"></i>AraT5v2 struggles</h5><p class="text-sm text-slate-600 mt-1">Lowest everywhere (BLEU 10.16%), likely due to very little English in its training data.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section id="cases" class="max-w-6xl mx-auto px-4 py-16">
+  <h2 class="section-title text-center mb-3">Case Studies</h2>
+  <p class="text-center text-slate-600 mb-8">Qualitative look at homonyms and proper nouns.</p>
+  <div class="flex flex-wrap gap-2 justify-center mb-6" id="case-tabs"></div>
+  <div class="card p-6" id="case-panel"></div>
+  <p class="text-xs text-slate-500 mt-3 text-center">
+    <span class="pill bg-emerald-100 text-emerald-700">correct</span>
+    <span class="pill bg-amber-100 text-amber-700">partly</span>
+    <span class="pill bg-rose-100 text-rose-700">wrong</span>
+    mBART-50 was dropped from the NER tests because it failed to translate sentences containing the pipeline's special tokens.
+  </p>
+</section>
+
+<!-- CONCLUSION -->
+<section id="conclusion" class="bg-white py-16">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="section-title text-center mb-10">Discussion &amp; Conclusion</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card p-6 fade-in">
+        <h4 class="font-bold text-lg mb-3 text-[#1d4f86]"><i class="fas fa-lightbulb mr-2"></i>Key findings</h4>
+        <ul class="space-y-3 text-slate-700">
+          <li><i class="fas fa-check-circle text-[#14a3a3] mr-2"></i>Fine-tuning, even on a small dataset, clearly improves dialect-specific translation.</li>
+          <li><i class="fas fa-check-circle text-[#14a3a3] mr-2"></i>NLLB-200 and M2M-100 were the strongest models (BLEU 36.23%, ROUGE above 0.6).</li>
+          <li><i class="fas fa-check-circle text-[#14a3a3] mr-2"></i>AraT5v2 performed worst, suggesting familiarity with English is essential.</li>
+          <li><i class="fas fa-check-circle text-[#14a3a3] mr-2"></i>The NER integration had no significant impact on NLLB-200, M2M-100 and MarianMT.</li>
+          <li><i class="fas fa-check-circle text-[#14a3a3] mr-2"></i>Llama 3.1 8B handled proper nouns best, so more LLMs are worth exploring.</li>
+        </ul>
+      </div>
+      <div class="card p-6 fade-in">
+        <h4 class="font-bold text-lg mb-3 text-[#1d4f86]"><i class="fas fa-circle-exclamation mr-2"></i>Limitations</h4>
+        <ul class="space-y-3 text-slate-700">
+          <li><i class="fas fa-minus text-slate-400 mr-2"></i>Arabic dialects are low-resource: a small corpus covering few themes.</li>
+          <li><i class="fas fa-minus text-slate-400 mr-2"></i>Many out-of-vocabulary words the models could not translate.</li>
+          <li><i class="fas fa-minus text-slate-400 mr-2"></i>Manual evaluation was done by native Syrian Arabic speakers bilingual in English, not native English speakers.</li>
+          <li><i class="fas fa-minus text-slate-400 mr-2"></i>No standard transliteration for Arabic names.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card p-6 mt-6 fade-in">
+      <h4 class="font-bold text-lg mb-3 text-[#1d4f86]"><i class="fas fa-route mr-2"></i>Future work</h4>
+      <div class="grid sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+        <div class="bg-[#e8f1fb] rounded-lg p-3"><strong>More LLMs</strong><br>Test and fine-tune further LLMs on semantically loaded entities.</div>
+        <div class="bg-[#e8f1fb] rounded-lg p-3"><strong>More case studies</strong><br>Geographical entities, song titles, names of dishes.</div>
+        <div class="bg-[#e8f1fb] rounded-lg p-3"><strong>Transliteration</strong><br>Standardize how named entities are transliterated.</div>
+        <div class="bg-[#e8f1fb] rounded-lg p-3"><strong>Idioms</strong><br>Detect idiomatic phrases and replace them with natural equivalents.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ETHICS -->
+<section class="max-w-6xl mx-auto px-4 py-16">
+  <h2 class="section-title text-center mb-10">Ethics Statement</h2>
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card p-6 fade-in">
+      <h4 class="font-bold text-lg mb-3"><i class="fas fa-leaf text-[#14a3a3] mr-2"></i>Carbon footprint</h4>
+      <p class="text-sm text-slate-600 mb-4">Hours of use × machine power (W) × carbon intensity of electricity in France (0.056 kg CO₂/kWh) × 0.001.</p>
+      <div class="space-y-2">
+        <div class="flex justify-between bg-[#e8f1fb] rounded p-3"><span>Local machine use</span><strong>2.336 kg CO₂</strong></div>
+        <div class="flex justify-between bg-[#e8f1fb] rounded p-3"><span>Model training</span><strong>0.958 kg CO₂</strong></div>
+        <div class="flex justify-between bg-[#2f6fb0] text-white rounded p-3"><span>Total</span><strong>3.294 kg CO₂</strong></div>
+      </div>
+    </div>
+    <div class="card p-6 fade-in">
+      <h4 class="font-bold text-lg mb-3"><i class="fas fa-scale-balanced text-[#14a3a3] mr-2"></i>Ethical concerns</h4>
+      <ul class="space-y-3 text-slate-700">
+        <li><strong>Prioritizing one dialect</strong> can marginalize others, and a single "Syrian dialect" erases variation between cities and neighborhoods.</li>
+        <li><strong>Standardizing an oral language</strong> risks imposing an arbitrary written norm that misses its linguistic and cultural richness.</li>
+        <li><strong>Linking dialects to English</strong> can reinforce linguistic imperialism, where a dialect's value is measured by its link to a global lingua franca.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-[#14365c] text-blue-100 py-12">
+  <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-8 text-sm">
+    <div>
+      <h5 class="font-bold text-white mb-3">Research Team</h5>
+      <p>Jad Baalbaki, Benjamin Caissial, Lea Cardi, Joe Nakhle, Stephanie Ounanian, Sana Rekbi, Celine Zyna Rahme</p>
+    </div>
+    <div>
+      <h5 class="font-bold text-white mb-3">Institution &amp; Program</h5>
+      <p>IDMC – Université de Lorraine<br>M1 NLP</p>
+    </div>
+    <div>
+      <h5 class="font-bold text-white mb-3">Key References</h5>
+      <ul class="space-y-1">
+        <li>• Meftouh et al. (2018) – PADIC</li>
+        <li>• NLLB Team (2022) – No Language Left Behind</li>
+        <li>• Fan et al. (2020) – M2M-100</li>
+        <li>• Tang et al. (2020) – mBART-50</li>
+        <li>• Junczys-Dowmunt et al. (2018) – Marian</li>
+        <li>• Elmadany et al. (2023) – AraT5v2 / Octopus</li>
+        <li>• Sadallah et al. (2023) – ANER</li>
+        <li>• Zbib et al. (2012) – MT of Arabic dialects</li>
+      </ul>
+    </div>
+  </div>
+  <p class="text-center text-xs text-blue-200 mt-10">"Assessing linguistic features in different Machine Translation models from Syrian Arabic to English" – Université de Lorraine, M1 NLP.</p>
+</footer>
+
+<script>
+// ---------- TEAM ----------
+const team = ["Jad Baalbaki","Benjamin Caissial","Lea Cardi","Joe Nakhle","Stephanie Ounanian","Sana Rekbi","Celine Zyna Rahme"];
+document.getElementById('team').innerHTML = team.map(n => `
+  <div class="card p-4 text-center">
+    <div class="w-12 h-12 mx-auto rounded-full bg-[#e8f1fb] text-[#1d4f86] flex items-center justify-center font-extrabold mb-2">${n.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+    <div class="text-xs uppercase tracking-wide text-slate-500">Student</div>
+    <div class="font-bold">${n}</div>
+  </div>`).join('');
+
+// ---------- MODELS ----------
+const models = [
+  {n:"mBART-50", c:"Tang et al., 2020", d:"Seq2seq encoder-decoder trained with masked language modeling. Strong contextual representations; known to do well on low-resource translation."},
+  {n:"MarianMT", c:"Junczys-Dowmunt et al., 2018", d:"Seq2seq transformer built for translation. Tied encoder-decoder embeddings keep it lightweight and quick to adapt to new language pairs."},
+  {n:"M2M-100", c:"Fan et al., 2020", d:"Multilingual seq2seq model by Meta AI, designed for diverse language pairs and adaptable to low-resource languages."},
+  {n:"NLLB-200 (600M)", c:"NLLB Team, 2022", d:"Seq2seq model by Meta AI focused on low-resource languages. The version used had been fine-tuned for Egyptian Arabic."},
+  {n:"AraT5v2-base-1024", c:"Elmadany et al., 2023", d:"Text-to-text transformer for Arabic generation, trained on MSA and dialectal tweets, but with very little English data."}
+];
+document.getElementById('models-grid').innerHTML = models.map(m => `
+  <div class="card p-5 fade-in">
+    <h4 class="font-extrabold text-[#1d4f86]">${m.n}</h4>
+    <p class="text-xs text-slate-500 mb-2">${m.c}</p>
+    <p class="text-sm text-slate-700">${m.d}</p>
+  </div>`).join('');
+
+// ---------- RESULTS ----------
+const names = ["mBART-50","MarianMT","M2M-100","AraT5v2-base-1024","NLLB-200 (600M)"];
+const results = {
+  "BLEU (%)":     [32.23, 31.02, 33.90, 10.16, 36.23],
+  "ROUGE-1":      [0.608, 0.605, 0.662, 0.343, 0.64],
+  "ROUGE-2":      [0.366, 0.380, 0.408, 0.132, 0.411],
+  "ROUGE-L":      [0.592, 0.587, 0.635, 0.320, 0.6255],
+  "ROUGE-LSUM":   [0.592, 0.587, 0.635, 0.368, 0.615],
+  "METEOR":       [0.587, 0.592, 0.599, 0.340, 0.597],
+  "CHRF (%)":     [50.436, 50.869, 54.80, 27.374, 55.95],
+  "BERTScore F1": [0.933, 0.929, 0.93, 0.593, 0.931]
+};
+
+let html = `<thead><tr class="border-b-2 border-[#8fb4dc]"><th class="text-left">Metric</th>${names.map(n=>`<th>${n}</th>`).join('')}</tr></thead><tbody>`;
+for (const [metric, vals] of Object.entries(results)) {
+  const max = Math.max(...vals);
+  html += `<tr class="border-b border-slate-100"><td class="text-left font-semibold">${metric}</td>${vals.map(v=>`<td class="${v===max?'best':''}">${v}</td>`).join('')}</tr>`;
+}
+document.getElementById('results-table').innerHTML = html + '</tbody>';
+
+const colors = ['#8fb4dc','#5b93c9','#2f6fb0','#c7d3e0','#14a3a3'];
+const ctx = document.getElementById('metricChart');
+let chart = new Chart(ctx, {
+  type:'bar',
+  data:{ labels:names, datasets:[{ label:"BLEU (%)", data:results["BLEU (%)"], backgroundColor:colors, borderRadius:8 }]},
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+            scales:{ y:{ beginAtZero:true } } }
+});
+const btnBox = document.getElementById('metric-buttons');
+Object.keys(results).forEach((m,i) => {
+  const b = document.createElement('button');
+  b.textContent = m;
+  b.className = 'metric-btn px-3 py-1.5 rounded-full text-sm font-semibold bg-[#e8f1fb] text-[#1d4f86]' + (i===0?' active':'');
+  b.onclick = () => {
+    document.querySelectorAll('.metric-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    chart.data.datasets[0].data = results[m];
+    chart.data.datasets[0].label = m;
+    chart.update();
+  };
+  btnBox.appendChild(b);
+});
+
+// ---------- CASE STUDIES ----------
+const G='correct', P='partly', W='wrong';
+const cases = [
+  { tab:"Homonym: قريتها", title:"Fine-tuning and dialectal homonyms", src:"قريتها مبارح عشية", ref:"I read it (fem.) last night.",
+    note:"In MSA, قريتها reads as \"her village\" (قرية + ها). In Syrian Arabic it means \"I read it\". The pre-trained models mostly picked the MSA meaning; after fine-tuning, every model got it right.",
+    rows:[["Pre-trained mBART-50","Her village was a wilderness.",W],["Fine-tuned mBART-50","I read it last night.",G],
+          ["Pre-trained M2M-100","The town struggles at night.",W],["Fine-tuned M2M-100","I read it yesterday evening.",G],
+          ["Pre-trained MarianMT","Her village's off for the night.",W],["Fine-tuned MarianMT","I read it yesterday night.",G],
+          ["Pre-trained NLLB-200","I read it in the evening.",G],["Fine-tuned NLLB-200","I read it last night.",G]] },
+  { tab:"Name: Yasmin", title:"A name that is also a word", src:"انا و ياسمين نزلنا عالسوق مبارح", ref:"Yasmin and I went shopping yesterday.",
+    note:"All models recognized Yasmin as a person (the name appears in PADIC). Llama, not exposed to PADIC, wrote \"Yasmine\". The Arabic order \"I and Yasmin\" was carried over literally by M2M-100 and NLLB-200 with NER, giving unnatural English.",
+    rows:[["Llama 3.1 8B","I went to the market with Yasmine yesterday.",G],["Llama 3.1 8B + NER","I and Yasmine went to the market yesterday.",P],
+          ["M2M-100","I and Yasmin went to the market yesterday.",P],["M2M-100 + NER","I and Yasmin went to the market yesterday.",P],
+          ["MarianMT","Yasmin and I went down to the market yesterday.",G],["MarianMT + NER","Yasmin and I went down to the market yesterday.",G],
+          ["NLLB-200","yasmin and i went to the market yesterday",G],["NLLB-200 + NER","me and yasmin went to the market yesterday",P]] },
+  { tab:"Word: jasmine", title:"The same word, used literally", src:"هي الكنزة ريحتها ياسمين", ref:"This sweater smells like jasmine.",
+    note:"Here ياسمين is the flower. The fine-tuned models turned it into the name Yasmin they saw during fine-tuning. NLLB-200 and M2M-100 also mistranslated the dialectal word for sweater (close to the word for treasure). Only Llama with NER got the full sentence right.",
+    rows:[["Llama 3.1 8B","She is the sweater with a jasmine scent.",P],["Llama 3.1 8B + NER","This sweater smells like jasmine.",G],
+          ["M2M-100","This is the gift that Yasmin smelled.",W],["M2M-100 + NER","This is the gift that Yasmin smelled.",W],
+          ["MarianMT","This is the sweater, its scent is Yasmin.",W],["MarianMT + NER","This is the sweater, its scent is Yasmin.",W],
+          ["NLLB-200","this treasure has the scent of yasmin",W],["NLLB-200 + NER","this treasure has the scent of yasmin",W]] },
+  { tab:"Place: Ras al-Ayn", title:"A city name with a literal meaning", src:"راس العين مدينة حلوة", ref:"Ras al-Ayn is a beautiful city.",
+    note:"Ras al-Ayn literally means \"head of the eye\". Only Llama kept the city name, transliterating it differently with and without NER. With NER it also translated حلوة as \"sweet\", which is wrong when describing a city.",
+    rows:[["Llama 3.1 8B","Ras al-'Ayn is a beautiful city.",G],["Llama 3.1 8B + NER","Ras al-Ain is a sweet city.",P],
+          ["M2M-100","The eye head is a beautiful city.",W],["M2M-100 + NER","The eye head is a beautiful city.",W],
+          ["MarianMT","The head of the eye is a beautiful city.",W],["MarianMT + NER","The head of the eye is a beautiful city.",W],
+          ["NLLB-200","the head of the eye is a beautiful city",W],["NLLB-200 + NER","head the eye it is a beautiful city",W]] }
+];
+const badge = s => s===G ? '<span class="pill bg-emerald-100 text-emerald-700">correct</span>'
+                 : s===P ? '<span class="pill bg-amber-100 text-amber-700">partly</span>'
+                 : '<span class="pill bg-rose-100 text-rose-700">wrong</span>';
+function showCase(i){
+  const c = cases[i];
+  document.querySelectorAll('.tab-btn').forEach((b,j)=>b.classList.toggle('active', j===i));
+  document.getElementById('case-panel').innerHTML = `
+    <h4 class="font-extrabold text-xl text-[#14365c] mb-4">${c.title}</h4>
+    <div class="grid md:grid-cols-2 gap-4 mb-5">
+      <div class="bg-[#e8f1fb] rounded-lg p-4"><div class="text-xs uppercase text-slate-500 mb-1">Source (Syrian Arabic)</div><div class="ar text-2xl">${c.src}</div></div>
+      <div class="bg-[#e8f1fb] rounded-lg p-4"><div class="text-xs uppercase text-slate-500 mb-1">Intended meaning</div><div class="text-lg font-semibold">${c.ref}</div></div>
+    </div>
+    <div class="overflow-x-auto"><table class="w-full text-sm text-left">
+      <thead><tr class="border-b-2 border-[#8fb4dc]"><th>Model</th><th>Generated translation</th><th></th></tr></thead>
+      <tbody>${c.rows.map(r=>`<tr class="border-b border-slate-100"><td class="font-semibold whitespace-nowrap">${r[0]}</td><td>${r[1]}</td><td>${badge(r[2])}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <p class="mt-4 text-slate-700"><i class="fas fa-magnifying-glass text-[#2f6fb0] mr-2"></i>${c.note}</p>`;
+}
+const tabBox = document.getElementById('case-tabs');
+cases.forEach((c,i)=>{
+  const b=document.createElement('button');
+  b.className='tab-btn px-4 py-2 rounded-full text-sm font-semibold bg-[#e8f1fb] text-[#1d4f86]';
+  b.textContent=c.tab; b.onclick=()=>showCase(i); tabBox.appendChild(b);
+});
+showCase(0);
+
+// ---------- FADE-IN ----------
+const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} }), {threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
